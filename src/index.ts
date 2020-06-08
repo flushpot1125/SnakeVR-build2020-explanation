@@ -11,6 +11,8 @@ import {
   CannonJSPlugin,
   PhysicsImpostor,
   ExtendedGamepadButton,
+  ActionManager,
+  ExecuteCodeAction
 } from "babylonjs";
 import { TextBlock, AdvancedDynamicTexture } from "babylonjs-gui";
 import { addLabelToScene, updateScore } from "./score";
@@ -54,6 +56,7 @@ function createScene(): Scene {
   createBoxEnv(scene, snake);
   addLabelToScene();
   registerSnakeController(vrHelper);
+  keyboardController(scene);
 
   gameText.text = "Press right trigger to play game";
   gameText.color = "white";
@@ -100,6 +103,30 @@ engine.runRenderLoop(function () {
 window.addEventListener("resize", function () {
   engine.resize();
 });
+
+function keyboardController(scene){
+  let map = {}; //object for multiple key presses
+  scene.actionManager = new ActionManager(scene);
+
+  scene.actionManager.registerAction(new ExecuteCodeAction(ActionManager.OnKeyDownTrigger, function (evt) {
+      map[evt.sourceEvent.key] = evt.sourceEvent.type == "keydown";
+
+  }));
+
+  scene.actionManager.registerAction(new ExecuteCodeAction(ActionManager.OnKeyUpTrigger, function (evt) {
+      map[evt.sourceEvent.key] = evt.sourceEvent.type == "keydown";
+  }));
+
+  scene.registerAfterRender(function () {
+
+    if ((map["w"] || map["W"])) {
+      startGame();
+       // sphere.position.z += 0.1;
+    };
+
+
+});
+}
 
 function registerSnakeController(vrHelper) {
   let speedDelta = 60 / 1000;
