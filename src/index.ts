@@ -42,6 +42,7 @@ function createScene(): Scene {
   scene = new Scene(engine);
   //create camera
   camera = new FreeCamera("camera", new Vector3(0, 0, -10), scene);
+  camera.setTarget(BABYLON.Vector3.Zero());
   camera.attachControl(canvas, true);
   //camera.inputs.clear();
 
@@ -50,13 +51,13 @@ function createScene(): Scene {
   scene.enablePhysics(new Vector3(0, 0, 0), cannonPlugin);
 
   snake = createSnake(scene);
-  var vrHelper = scene.createDefaultVRExperience();
+ // var vrHelper = scene.createDefaultVRExperience();
 
   //create box environment
   createBoxEnv(scene, snake);
   addLabelToScene();
-  registerSnakeController(vrHelper);
-  keyboardController(scene);
+ // registerSnakeController(vrHelper);
+//  keyboardController(scene);
 
   gameText.text = "Press right trigger to play game";
   gameText.color = "white";
@@ -70,6 +71,7 @@ function createScene(): Scene {
 }
 
 var startGame = () => {
+  console.log("start game");
   if (attempts > 0) {
     attempts++;
     snake.isVisible = true;
@@ -95,6 +97,14 @@ export function stopGame() {
 
 // call the createScene function
 var scene = createScene();
+
+document.onkeydown =(e)=>{
+  if(e.key == 'w'){
+    console.log("Game start!");
+    startGame();
+  }
+}
+
 // run the render loop
 engine.runRenderLoop(function () {
   scene.render();
@@ -114,7 +124,7 @@ function keyboardController(scene){
   }));
 
   scene.actionManager.registerAction(new ExecuteCodeAction(ActionManager.OnKeyUpTrigger, function (evt) {
-      map[evt.sourceEvent.key] = evt.sourceEvent.type == "keydown";
+      map[evt.sourceEvent.key] = evt.sourceEvent.type == "keyup";
   }));
 
   scene.registerAfterRender(function () {
@@ -127,7 +137,7 @@ function keyboardController(scene){
 
 });
 }
-
+/*
 function registerSnakeController(vrHelper) {
   let speedDelta = 60 / 1000;
   let deltaTime = engine.getDeltaTime();
@@ -248,3 +258,4 @@ function registerSnakeController(vrHelper) {
     );
   });
 }
+*/
