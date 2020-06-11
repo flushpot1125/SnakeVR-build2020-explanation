@@ -38,6 +38,8 @@ let snakeSpeed = 5;
 let attempts = 0;
 let gameText = new TextBlock();
 
+enum Direction  {UP,DOWN,RIGHT,LEFT};
+
 function createScene(): Scene {
   scene = new Scene(engine);
   //create camera
@@ -99,9 +101,17 @@ export function stopGame() {
 var scene = createScene();
 
 document.onkeydown =(e)=>{
-  if(e.key == 'w'){
+  if(e.keyCode == 32){//SPACE
     console.log("Game start!");
     startGame();
+  }else if (e.keyCode == 87){ //UP
+    moveSnake(Direction.UP);
+  }else if (e.keyCode ==83){ //DOWN
+    moveSnake(Direction.DOWN);
+  }else if (e.keyCode ==68){ //RIGHT
+    moveSnake(Direction.RIGHT);
+  }else if (e.keyCode ==65){ //LEFT
+    moveSnake(Direction.LEFT);
   }
 }
 
@@ -113,6 +123,29 @@ engine.runRenderLoop(function () {
 window.addEventListener("resize", function () {
   engine.resize();
 });
+
+function moveSnake(snakeStep:Direction){
+  var x,y,z:number;
+  if(snakeStep ==Direction.UP){
+    x=y=0, z=100;
+  }else if (snakeStep==Direction.DOWN){
+    x=y=0, z=-100;
+  }else if (snakeStep==Direction.RIGHT){
+    x=100,y=z=0;
+  }else if (snakeStep=Direction.LEFT){
+    x=-100,y,z=0;
+  }
+  Animation.CreateAndStartAnimation(
+    "anim",
+    snake,
+    "position",
+    snakeSpeed,
+    100,
+    snake.position,
+    new Vector3(x,y,z),
+    Animation.ANIMATIONLOOPMODE_CONSTANT
+  );
+}
 
 function keyboardController(scene){
   let map = {}; //object for multiple key presses
@@ -137,7 +170,7 @@ function keyboardController(scene){
 
 });
 }
-/*
+
 function registerSnakeController(vrHelper) {
   let speedDelta = 60 / 1000;
   let deltaTime = engine.getDeltaTime();
@@ -258,4 +291,4 @@ function registerSnakeController(vrHelper) {
     );
   });
 }
-*/
+
