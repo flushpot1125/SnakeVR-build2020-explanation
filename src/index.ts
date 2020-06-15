@@ -34,7 +34,8 @@ let camera = null;
 let isGameActive = false;
 let snake: Mesh = null;
 //snake speed is animation frame per second
-let snakeSpeed = 5;
+//let snakeSpeed = 5;
+let snakeSpeed = 1;
 let attempts = 0;
 let gameText = new TextBlock();
 
@@ -61,7 +62,7 @@ function createScene(): Scene {
  // registerSnakeController(vrHelper);
 //  keyboardController(scene);
 
-  gameText.text = "Press right trigger to play game";
+  gameText.text = "Press right trigger or space key to play game";
   gameText.color = "white";
   gameText.fontSize = 25;
   var advancedTexture = AdvancedDynamicTexture.CreateFullscreenUI(
@@ -94,7 +95,7 @@ export function stopGame() {
   isGameActive = false;
   updateScore(0);
   gameText.isVisible = true;
-  gameText.text = "Game Over. Press right trigger to try again!";
+  gameText.text = "Game Over. Press right trigger or space key to try again!";
 }
 
 // call the createScene function
@@ -142,8 +143,10 @@ function moveSnake(snakeStep:Direction){
     snakeSpeed,
     100,
     snake.position,
-    new Vector3(x,y,z),
-    Animation.ANIMATIONLOOPMODE_CONSTANT
+ //   new Vector3(x,y,z),
+  //  Animation.ANIMATIONLOOPMODE_CONSTANT
+    new Vector3(x,y,z)
+  //  Animation.ANIMATIONLOOPMODE_CONSTANT
   );
 }
 

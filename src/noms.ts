@@ -33,7 +33,8 @@ export function addNom(scene: Scene, snake: Mesh, snakeSpeed: number) {
   food.material = foodMaterial;
   food.position = new Vector3(
     Math.random() * 5,
-    Math.random() * 5,
+//    Math.random() * 5,
+   0,
     Math.random() * 5
   );
 
