@@ -54,7 +54,7 @@ function createScene(): Scene {
   scene.enablePhysics(new Vector3(0, 0, 0), cannonPlugin);
 
   snake = createSnake(scene);
- // var vrHelper = scene.createDefaultVRExperience();
+  var vrHelper = scene.createDefaultVRExperience();
 
   //create box environment
   createBoxEnv(scene, snake);
