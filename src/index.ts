@@ -12,7 +12,8 @@ import {
   PhysicsImpostor,
   ExtendedGamepadButton,
   ActionManager,
-  ExecuteCodeAction
+  ExecuteCodeAction,
+  Space
 } from "babylonjs";
 import { TextBlock, AdvancedDynamicTexture } from "babylonjs-gui";
 import { addLabelToScene, updateScore } from "./score";
@@ -35,11 +36,11 @@ let isGameActive = false;
 let snake: Mesh = null;
 //snake speed is animation frame per second
 //let snakeSpeed = 5;
-let snakeSpeed = 1;
+let snakeSpeed = 1;//スピード早すぎて検証しづらかったので緩めました
 let attempts = 0;
 let gameText = new TextBlock();
 
-enum Direction  {UP,DOWN,RIGHT,LEFT};
+enum Direction  {UP,DOWN,RIGHT,LEFT};//キーボード入力のために追加
 
 function createScene(): Scene {
   scene = new Scene(engine);
@@ -49,20 +50,19 @@ function createScene(): Scene {
   camera.attachControl(canvas, true);
   //camera.inputs.clear();
 
-  //add physics engine
+  //シーン全体に物理エンジンを追加 cannonjsはjs関係で有名な物理エンジン
   var cannonPlugin = new CannonJSPlugin(true, 10, cannon);
   scene.enablePhysics(new Vector3(0, 0, 0), cannonPlugin);
 
   snake = createSnake(scene);
-  var vrHelper = scene.createDefaultVRExperience();
+  var vrHelper = scene.createDefaultVRExperience();//この宣言でVR対応する
 
-  //create box environment
+  //大きな箱状のステージを作成
   createBoxEnv(scene, snake);
   addLabelToScene();
- // registerSnakeController(vrHelper);
-//  keyboardController(scene);
+  registerSnakeController(vrHelper);
 
-  gameText.text = "Press right trigger or space key to play game";
+  gameText.text = "Press right trigger or space key to play game";//スペースキーでもゲーム開始することを追加
   gameText.color = "white";
   gameText.fontSize = 25;
   var advancedTexture = AdvancedDynamicTexture.CreateFullscreenUI(
@@ -128,14 +128,23 @@ window.addEventListener("resize", function () {
 function moveSnake(snakeStep:Direction){
   var x,y,z:number;
   if(snakeStep ==Direction.UP){
-    x=y=0, z=100;
+  //  x=y=0, z=100;
+    x=y=0, z=1;
   }else if (snakeStep==Direction.DOWN){
-    x=y=0, z=-100;
+   // x=y=0, z=-100;
+    x=y=0, z=-1;
   }else if (snakeStep==Direction.RIGHT){
-    x=100,y=z=0;
+   // x=100,y=z=0;
+    x=1,y=z=0;
   }else if (snakeStep=Direction.LEFT){
-    x=-100,y,z=0;
+   // x=-100,y,z=0;
+    x=-1,y,z=0;
   }
+  //Animation.CreateAndStartAnimationを使うか、snake.translateのどちらを使っても移動は実現できる
+  //Animation.CreateAndStartAnimationの場合、指定方向に等速直線移動  
+  //snake.translateだと、ボタンを押したときだけSnakeが移動。x,zの変位量は1程度がよい
+  //webVRController.onTriggerStateChangedObservableでも同様
+  /*
   Animation.CreateAndStartAnimation(
     "anim",
     snake,
@@ -143,42 +152,21 @@ function moveSnake(snakeStep:Direction){
     snakeSpeed,
     100,
     snake.position,
- //   new Vector3(x,y,z),
-  //  Animation.ANIMATIONLOOPMODE_CONSTANT
-    new Vector3(x,y,z)
-  //  Animation.ANIMATIONLOOPMODE_CONSTANT
+    new Vector3(x,y,z),
+    Animation.ANIMATIONLOOPMODE_CYCLE
   );
+  */
+  snake.translate( new Vector3(x,y,z),6,Space.WORLD);
+
 }
 
-function keyboardController(scene){
-  let map = {}; //object for multiple key presses
-  scene.actionManager = new ActionManager(scene);
-
-  scene.actionManager.registerAction(new ExecuteCodeAction(ActionManager.OnKeyDownTrigger, function (evt) {
-      map[evt.sourceEvent.key] = evt.sourceEvent.type == "keydown";
-
-  }));
-
-  scene.actionManager.registerAction(new ExecuteCodeAction(ActionManager.OnKeyUpTrigger, function (evt) {
-      map[evt.sourceEvent.key] = evt.sourceEvent.type == "keyup";
-  }));
-
-  scene.registerAfterRender(function () {
-
-    if ((map["w"] || map["W"])) {
-      startGame();
-       // sphere.position.z += 0.1;
-    };
-
-
-});
-}
 
 function registerSnakeController(vrHelper) {
   let speedDelta = 60 / 1000;
   let deltaTime = engine.getDeltaTime();
   let distance = snakeSpeed * speedDelta * deltaTime;
 
+  //以下はVRコントローラの入力を書く時の定型的な書き方
   vrHelper.onControllerMeshLoaded.add((webVRController: WebVRController) => {
     webVRController.onTriggerStateChangedObservable.add(
       (trigger: ExtendedGamepadButton) => {
